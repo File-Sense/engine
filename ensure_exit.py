@@ -5,9 +5,9 @@ import threading
 
 # Define the process name based on the OS
 if os.name == "nt":  # Windows
-    process_name = "tauri-python.exe"
+    process_name = "File Sense.exe"
 else:  # Unix-like systems
-    process_name = "tauri-python"
+    process_name = "File Sense"
 
 
 def get_process_id(process_name):
