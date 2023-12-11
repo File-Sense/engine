@@ -4,7 +4,7 @@ from distutils.dir_util import copy_tree
 
 a = Analysis(
     ['main.py'],
-    pathex=['.'],
+    pathex=['../venv/Lib/site-packages'],
     binaries=[],
     datas=[],
     hiddenimports=['psutil'],
