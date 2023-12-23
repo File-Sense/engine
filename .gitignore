@@ -1,3 +1,13 @@
+# custom ignore
+
+AI/model-caption/*
+AI/model-image/*
+AI/model-text/*
+
+!AI/model-caption/.gitkeep
+!AI/model-image/.gitkeep
+!AI/model-text/.gitkeep
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

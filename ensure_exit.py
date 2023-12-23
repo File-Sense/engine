@@ -1,5 +1,4 @@
 import os
-import sys
 import psutil
 import threading
 
@@ -15,8 +14,8 @@ def get_process_id(process_name):
         try:
             if process_name == proc.info["name"]:
                 return proc.info["pid"]
-        except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
-            pass
+        except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess) as e:
+            print(e)
     return False
 
 
@@ -39,5 +38,4 @@ def check():
         psutil.Process(parent_pid).kill()
 
 
-if getattr(sys, "frozen", False) and hasattr(sys, "_MEIPASS"):
-    set_interval(check, 10)
+set_interval(check, 10)
