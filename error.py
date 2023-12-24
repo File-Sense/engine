@@ -20,3 +20,9 @@ class TextEmbeddingGenerationError(Exception):
     def __init__(self, message="TEXT EMBEDDING GENERATION ERROR") -> None:
         self.message = message
         super().__init__(self.message)
+
+
+class VectorstoreInitializationError(Exception):
+    def __init__(self, message="VECTORSTORE INITIALIZATION ERROR") -> None:
+        self.message = message
+        super().__init__(self.message)

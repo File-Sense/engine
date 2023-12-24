@@ -1,5 +1,5 @@
 import os
-import psutil
+import psutil  # type: ignore
 import threading
 
 # Define the process name based on the OS

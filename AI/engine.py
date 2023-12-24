@@ -1,18 +1,18 @@
 from os import path
+from PIL import Image  # type: ignore
+from settings import Settings  # type: ignore
+import torch.nn.functional as F
+import torchvision.transforms as T  # type: ignore
 from torch.cuda import is_available
-import torchvision.transforms as T
-from PIL import Image
 from torch import no_grad, sum, clamp
-from transformers import (
+from transformers import (  # type: ignore
     BlipProcessor,
     BlipForConditionalGeneration,
     AutoModel,
     AutoImageProcessor,
     AutoTokenizer,
 )
-import torch.nn.functional as F
-from settings import Settings
-from error import (
+from error import (  # type: ignore
     AIEngineInitializationError,
     CaptionGenerationError,
     ImageEmbeddingGenerationError,
@@ -64,7 +64,7 @@ class AIEngine(object):
                 images=raw_image,
                 return_tensors="pt",
             ).to(self.device)
-            outputs = self.caption_model.generate(**inputs)
+            outputs = self.caption_model.generate(**inputs, max_length=80)
             caption = self.caption_processor.decode(
                 outputs[0], skip_special_tokens=True, max_length=100
             )
@@ -79,7 +79,7 @@ class AIEngine(object):
             )
             with no_grad():
                 model_output = self.text_model(**encoded_input.to(self.device))
-            sentence_embedding = self.mean_pooling(
+            sentence_embedding = self.__mean_pooling(
                 model_output, encoded_input["attention_mask"].to(self.device)
             )
             sentence_embedding = F.normalize(sentence_embedding, p=2, dim=1)
@@ -117,7 +117,7 @@ class AIEngine(object):
         except Exception as e:
             raise ImageEmbeddingGenerationError(message=str(e))
 
-    def mean_pooling(self, model_output, attention_mask):
+    def __mean_pooling(self, model_output, attention_mask):
         token_embeddings = model_output[0]
         input_mask_expanded = (
             attention_mask.unsqueeze(-1).expand(token_embeddings.size()).float()
@@ -125,3 +125,11 @@ class AIEngine(object):
         return sum(token_embeddings * input_mask_expanded, 1) / clamp(
             input_mask_expanded.sum(1), min=1e-9
         )
+
+    def release_models(self) -> None:
+        self.caption_model = None
+        self.caption_processor = None
+        self.image_model = None
+        self.image_extractor = None
+        self.text_model = None
+        self.text_tokenizer = None

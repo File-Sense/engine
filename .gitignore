@@ -1,5 +1,10 @@
 # custom ignore
 
+*.db
+*.sqlite3
+VECTORSTORE/vdb/*
+!VECTORSTORE/vdb/.gitkeep
+
 AI/model-caption/*
 AI/model-image/*
 AI/model-text/*

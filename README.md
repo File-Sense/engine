@@ -1,10 +1,10 @@
 # File Sense AI Engine 📂
 
-Semantic File Search Desktop Application AI Engine 🔎
+Semantic File Search Desktop Application - AI Engine 🔎
 
 ## Developers 👩🏼‍💻👨🏼‍💻🧑🏼‍💻
 
-This Application is built with following technologies: FastAPI, SQLite, Pyinstaller.
+This Application is built with following technologies: FastAPI, SQLite, ChromaDB, Transformers, Pytorch and SQLAlchemy.
 
 > Dev Environment Language Versions
 >
@@ -24,6 +24,6 @@ pip install -r requirements.txt
 # Run in dev mode
 python main.py dev
 
-# Create Distributable host os depend
-pyinstaller engine-<OS>.spec #OS win32,linux or darwin
+# Run in prod mode
+python main.py
 ```
