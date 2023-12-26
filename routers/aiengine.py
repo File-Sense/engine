@@ -1,4 +1,4 @@
-from model import (  # type: ignore
+from api_schema import (  # type: ignore
     GetCaptionWithEmbeddingsRequest,
     GetCaptionWithEmbeddingsResponse,
     GetImageCaptionRequest,
@@ -10,12 +10,10 @@ from model import (  # type: ignore
 )
 from fastapi import APIRouter, Request
 
-router = APIRouter()
+router = APIRouter(tags=["AI ENGINE"])
 
 
-@router.post(
-    "/get_text_embeddings", tags=["AI ENGINE"], response_model=GetTextEmbeddingsResponse
-)
+@router.post("/get_text_embeddings", response_model=GetTextEmbeddingsResponse)
 async def get_text_embeddings(r: Request, request: GetTextEmbeddingsRequest):
     try:
         embeddings = r.app.state.ai_engine.generate_text_embedding(request.text)
@@ -26,7 +24,6 @@ async def get_text_embeddings(r: Request, request: GetTextEmbeddingsRequest):
 
 @router.post(
     "/get_image_embeddings",
-    tags=["AI ENGINE"],
     response_model=GetImageEmbeddingsResponse,
 )
 async def get_image_embeddings(r: Request, request: GetImageEmbeddingsRequest):
@@ -40,9 +37,7 @@ async def get_image_embeddings(r: Request, request: GetImageEmbeddingsRequest):
         return GetImageEmbeddingsResponse(embeddings=None, error=str(e))
 
 
-@router.post(
-    "/get_image_caption", tags=["AI ENGINE"], response_model=GetImageCaptionResponse
-)
+@router.post("/get_image_caption", response_model=GetImageCaptionResponse)
 async def get_image_caption(r: Request, request: GetImageCaptionRequest):
     try:
         img_cap_list = [
@@ -56,7 +51,6 @@ async def get_image_caption(r: Request, request: GetImageCaptionRequest):
 
 @router.post(
     "/get_caption_with_embeddings",
-    tags=["AI ENGINE"],
     response_model=GetCaptionWithEmbeddingsResponse,
 )
 async def get_caption_with_embeddings(

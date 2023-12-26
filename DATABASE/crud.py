@@ -1,5 +1,6 @@
 from sqlalchemy.orm import Session
 from . import models, schemas
+from typing import Optional
 
 
 def get_index_path(db: Session, index_id: str):
@@ -50,4 +51,20 @@ def check_path_exist(db: Session, index_path: str):
 
 
 def get_index_status(db: Session, index_id: str):
-    return db.query(models.Index).filter(models.Index.index_id == index_id).first()
+    index = db.query(models.Index).filter(models.Index.index_id == index_id).first()
+    if index is not None:
+        return index.index_status.type.python_type
+    else:
+        return None
+
+
+def get_indexed_indexes(db: Session):
+    return db.query(models.Index).filter(models.Index.index_status == 0).all()
+
+
+def check_index_exist(db: Session, index_id: str):
+    return (
+        True
+        if db.query(models.Index).filter(models.Index.index_id == index_id).first()
+        else False
+    )
