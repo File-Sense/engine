@@ -1,18 +1,20 @@
 import uvicorn
+from re import sub
+from os import path
 from sys import argv
-from uuid import uuid4
 from typing import Dict
-from os import path, walk
-from routers import aiengine, database, vectorstore, common  # type: ignore
+from fastapi import FastAPI
 from settings import Settings  # type: ignore
+from os import name as os_name
 from AI.engine import AIEngine  # type: ignore
 from contextlib import asynccontextmanager
 from fastapi.staticfiles import StaticFiles
 from fastapi.openapi.utils import get_openapi
 from fastapi.responses import RedirectResponse
 from VECTORSTORE.vectorstore import VectorStore  # type: ignore
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.openapi.docs import get_swagger_ui_html
-from fastapi import FastAPI, BackgroundTasks, Request
+from routers import aiengine, database, vectorstore, common  # type: ignore
 from api_schema import (  # type: ignore
     TaskData,
 )
@@ -41,7 +43,16 @@ app = FastAPI(
     lifespan=lifespan,
     redoc_url=None,
 )
-app.mount("/static", StaticFiles(directory="static"), name="static")
+static_dir = path.join(settings.ROOT_DIR, "static")
+if os_name == "nt":
+    static_dir = sub(r"\\\\\?\\", "", static_dir)
+    static_dir = static_dir.replace("\\", "/")
+app.mount("/static", StaticFiles(directory=static_dir), name="static")
+
+app.add_middleware(
+    CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"]
+)
+
 app.include_router(aiengine.router, prefix="/api/aiengine")
 app.include_router(database.router, prefix="/api/database")
 app.include_router(vectorstore.router, prefix="/api/vectorstore")
