@@ -53,7 +53,7 @@ def check_path_exist(db: Session, index_path: str):
 def get_index_status(db: Session, index_id: str):
     index = db.query(models.Index).filter(models.Index.index_id == index_id).first()
     if index is not None:
-        return index.index_status.type.python_type
+        return index.index_status
     else:
         return None
 

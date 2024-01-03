@@ -10,11 +10,12 @@ from AI.engine import AIEngine  # type: ignore
 from contextlib import asynccontextmanager
 from fastapi.staticfiles import StaticFiles
 from fastapi.openapi.utils import get_openapi
-from fastapi.responses import RedirectResponse
 from VECTORSTORE.vectorstore import VectorStore  # type: ignore
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.openapi.docs import get_swagger_ui_html
 from routers import aiengine, database, vectorstore, common  # type: ignore
+from fastapi.responses import RedirectResponse, JSONResponse
+from starlette.exceptions import HTTPException as StarletteHTTPException
 from api_schema import (  # type: ignore
     TaskData,
 )
@@ -78,53 +79,12 @@ def custom_openapi():
 app.openapi = custom_openapi  # type: ignore
 
 
-# def list_image_paths(directory):
-#     image_extensions = [".png", ".jpg", ".jpeg", ".ppm", ".gif", ".tiff", ".bmp"]
-#     image_paths = []
-
-#     try:
-#         for root, _, files in walk(directory):
-#             for file in files:
-#                 if any(file.lower().endswith(ext) for ext in image_extensions):
-#                     image_paths.append(path.normpath(path.join(root, file)))
-
-#     except OSError as e:
-#         print(f"Error reading directory '{directory}': {e}")
-
-#     return image_paths
+@app.exception_handler(StarletteHTTPException)
+async def http_exception_handler(request, exc):
+    return JSONResponse(status_code=exc.status_code, content=exc.detail)
 
 
-# def create_index_task(ai_engine: AIEngine, task_id: str, folder_path: str):
-#     try:
-#         image_paths = list_image_paths(folder_path)
-#         image_embeddings = [
-#             ai_engine.generate_image_embedding(image) for image in image_paths
-#         ]
-#         caption_embeddings = ai_engine.generate_text_embedding(
-#             [ai_engine.generate_caption(image) for image in image_paths]
-#         )
-#         task_data = TaskData(
-#             status="completed",
-#             caption_embeddings=caption_embeddings,
-#             image_embeddings=image_embeddings,
-#             file_paths=image_paths,
-#             folder_path=folder_path,
-#             error=None,
-#         )
-#         task_state[task_id] = task_data
-#     except Exception as e:
-#         task_state[task_id] = TaskData(
-#             status="failed",
-#             caption_embeddings=None,
-#             image_embeddings=None,
-#             folder_path=folder_path,
-#             file_paths=None,
-#             error=str(e),
-#         )
-#         raise e
-
-
-@app.get("/api/ping")
+@app.get("/api/ping", tags=["DEFAULT"])
 async def ping():
     return {"ping": "pong"}
 
@@ -141,49 +101,6 @@ async def swagger_ui_html():
         title="File Sense AI API",
         swagger_favicon_url="/static/icon192.png",
     )
-
-
-# @app.post("/api/create_indexing_task", response_model=CreateIndexingTaskResponse)
-# async def create_indexing_task(
-#     r: Request, request: CreateIndexingTaskRequest, background_tasks: BackgroundTasks
-# ):
-#     try:
-#         task_id = str(uuid4())
-#         task_state[task_id] = TaskData(
-#             status="running",
-#             caption_embeddings=None,
-#             file_paths=None,
-#             image_embeddings=None,
-#             folder_path=request.folder_path,
-#             error=None,
-#         )
-#         background_tasks.add_task(
-#             create_index_task, r.app.state.ai_engine, task_id, request.folder_path
-#         )
-#         return CreateIndexingTaskResponse(task_id=task_id, error=None)
-#     except Exception as e:
-#         return CreateIndexingTaskResponse(task_id=None, error=str(e))
-
-
-# @app.get(
-#     "/api/get_indexing_task_status_or_result/{task_id}",
-# )
-# async def get_indexing_task_status(task_id: str):
-#     try:
-#         if task_id not in task_state.keys():
-#             raise Exception(f"Task with id '{task_id}' not found")
-#         response = GetIndexingTaskResponse(
-#             task_id=task_id,
-#             data=task_state[task_id].model_dump(),
-#             error=None,
-#             status=task_state[task_id].status,
-#         )
-#         del task_state[task_id]
-#         return response
-#     except Exception as e:
-#         return GetIndexingTaskResponse(
-#             task_id=task_id, data=None, error=str(e), status="failed"
-#         )
 
 
 if __name__ == "__main__":

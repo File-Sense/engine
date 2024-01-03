@@ -8,7 +8,7 @@ from api_schema import (  # type: ignore
     GetTextEmbeddingsRequest,
     GetTextEmbeddingsResponse,
 )
-from fastapi import APIRouter, Request
+from fastapi import APIRouter, Request, HTTPException, status as HTTPStatus
 
 router = APIRouter(tags=["AI ENGINE"])
 
@@ -19,7 +19,12 @@ async def get_text_embeddings(r: Request, request: GetTextEmbeddingsRequest):
         embeddings = r.app.state.ai_engine.generate_text_embedding(request.text)
         return GetTextEmbeddingsResponse(embeddings=embeddings, error=None)
     except Exception as e:
-        return GetTextEmbeddingsResponse(embeddings=None, error=str(e))
+        raise HTTPException(
+            status_code=HTTPStatus.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=GetTextEmbeddingsResponse(
+                embeddings=None, error=str(e)
+            ).model_dump(),
+        )
 
 
 @router.post(
@@ -34,7 +39,12 @@ async def get_image_embeddings(r: Request, request: GetImageEmbeddingsRequest):
         ]
         return GetImageEmbeddingsResponse(embeddings=img_emb_list, error=None)
     except Exception as e:
-        return GetImageEmbeddingsResponse(embeddings=None, error=str(e))
+        raise HTTPException(
+            status_code=HTTPStatus.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=GetImageEmbeddingsResponse(
+                embeddings=None, error=str(e)
+            ).model_dump(),
+        )
 
 
 @router.post("/get_image_caption", response_model=GetImageCaptionResponse)
@@ -46,7 +56,10 @@ async def get_image_caption(r: Request, request: GetImageCaptionRequest):
         ]
         return GetImageCaptionResponse(caption=img_cap_list, error=None)
     except Exception as e:
-        return GetImageCaptionResponse(caption=None, error=str(e))
+        raise HTTPException(
+            status_code=HTTPStatus.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=GetImageCaptionResponse(caption=None, error=str(e)).model_dump(),
+        )
 
 
 @router.post(
@@ -73,6 +86,9 @@ async def get_caption_with_embeddings(
             error=None,
         )
     except Exception as e:
-        return GetCaptionWithEmbeddingsResponse(
-            caption=None, text_embeddings=None, image_embeddings=None, error=str(e)
+        raise HTTPException(
+            status_code=HTTPStatus.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=GetCaptionWithEmbeddingsResponse(
+                caption=None, text_embeddings=None, image_embeddings=None, error=str(e)
+            ).model_dump(),
         )
