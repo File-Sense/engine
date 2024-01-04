@@ -188,7 +188,7 @@ def delete_index(
     request: DeleteIndexRequest = Depends(),
     db: Session = Depends(get_db),
 ):
-    if not crud.check_index_exist(db, request.index_name):
+    if not crud.check_index_exist(db, request.index_id):
         raise HTTPException(
             status_code=HTTPStatus.HTTP_404_NOT_FOUND,
             detail=BaseSearchResultResponse(
@@ -196,8 +196,8 @@ def delete_index(
             ).model_dump(),
         )
     try:
-        crud.delete_index(db, request.index_name)
-        r.app.state.vectorstore.delete_collection(request.index_name)
+        crud.delete_index(db, request.index_id)
+        r.app.state.vectorstore.delete_collection(request.index_id)
         return DeleteIndexResponse(data="OK", error=None)
     except Exception as e:
         raise HTTPException(
