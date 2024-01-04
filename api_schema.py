@@ -109,7 +109,7 @@ class SearchByImageRequest(BaseSearchRequest):
 
 
 class DeleteIndexRequest(BaseModel):
-    index_name: str
+    index_id: str
 
 
 class DeleteIndexResponse(BaseResponse):
