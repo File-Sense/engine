@@ -1,6 +1,5 @@
-from os import path
 from pathlib import Path
-from settings import Settings  # type: ignore
+from os import path, mkdir
 from typing import Dict, Sequence, Tuple, List
 from error import VectorstoreInitializationError  # type: ignore
 from chromadb import PersistentClient, Collection
@@ -14,10 +13,10 @@ class VectorStore(object):
 
     def __init__(self) -> None:
         try:
-            self.settings = Settings()
-            self.client = PersistentClient(
-                path=path.join(self.settings.ROOT_DIR, "VECTORSTORE", "vdb")
-            )
+            filesense_path = path.join(Path.home(), ".filesense")
+            if not path.exists(filesense_path):
+                mkdir(filesense_path)
+            self.client = PersistentClient(path=path.join(filesense_path))
         except Exception as e:
             raise VectorstoreInitializationError(message=str(e))
 

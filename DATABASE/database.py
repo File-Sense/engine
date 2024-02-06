@@ -1,13 +1,15 @@
 from re import sub
-from settings import Settings  # type: ignore
-from os import path, name as os_name
+from pathlib import Path
+from os import path, name as os_name, mkdir
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
 
-settings = Settings()
+filesense_path = path.join(Path.home(), ".filesense")
+if not path.exists(filesense_path):
+    mkdir(filesense_path)
 
-db_dir = path.join(settings.ROOT_DIR, "DATABASE", "db", "refdb.sqlite3")
+db_dir = path.join(filesense_path, "refdb.sqlite3")
 if os_name == "nt":
     db_dir = sub(r"\\\\\?\\", "", db_dir)
     db_dir = db_dir.replace("\\", "/")
