@@ -100,8 +100,13 @@ class SearchByTextRequest(BaseSearchRequest):
     search_string: str
 
 
+class SearchResultDataResponse(BaseModel):
+    img_paths: Optional[List[str]]
+    img_distances: Optional[List[float]]
+
+
 class BaseSearchResultResponse(BaseResponse):
-    data: Optional[List[str]]
+    data: Optional[SearchResultDataResponse]
 
 
 class SearchByImageRequest(BaseSearchRequest):

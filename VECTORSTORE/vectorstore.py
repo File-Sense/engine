@@ -68,7 +68,12 @@ class VectorStore(object):
         img_path_list = [
             value["path"] for result in results["metadatas"] for value in result  # type: ignore
         ]
-        return img_path_list  # type: ignore
+        img_distance_list = (
+            results["distances"][0]
+            if results["distances"] is not None
+            else results["distances"]
+        )
+        return (img_path_list, img_distance_list)  # type: ignore
 
     def search_by_text(
         self, text_emb: List[float], collection_name: str, limit: int
