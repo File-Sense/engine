@@ -21,6 +21,7 @@ from api_schema import (  # type: ignore
     IndexDirResponse,
     SearchByImageRequest,
     SearchByTextRequest,
+    SearchResultDataResponse,
 )
 from checksumdir import dirhash
 
@@ -141,10 +142,15 @@ def search_by_text(
         text_emb = r.app.state.ai_engine.generate_text_embedding(
             [request.search_string]
         )
-        result = r.app.state.vectorstore.search_by_text(
+        (img_paths, img_distances) = r.app.state.vectorstore.search_by_text(
             text_emb, request.index_name, request.limit
         )
-        return BaseSearchResultResponse(data=result, error=None)
+        return BaseSearchResultResponse(
+            data=SearchResultDataResponse(
+                img_paths=img_paths, img_distances=img_distances
+            ),
+            error=None,
+        )
     except Exception as e:
         raise HTTPException(
             status_code=HTTPStatus.HTTP_500_INTERNAL_SERVER_ERROR,
@@ -171,10 +177,15 @@ def search_by_image(
         image_emb = r.app.state.ai_engine.generate_image_embedding(
             "", image=image_bytes
         )
-        result = r.app.state.vectorstore.search_by_image(
+        (img_paths, img_distances) = r.app.state.vectorstore.search_by_image(
             image_emb, request.index_name, request.limit
         )
-        return BaseSearchResultResponse(data=result, error=None)
+        return BaseSearchResultResponse(
+            data=SearchResultDataResponse(
+                img_paths=img_paths, img_distances=img_distances
+            ),
+            error=None,
+        )
     except Exception as e:
         raise HTTPException(
             status_code=HTTPStatus.HTTP_500_INTERNAL_SERVER_ERROR,
