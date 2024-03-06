@@ -1,5 +1,7 @@
 # File Sense AI Engine 📂
 
+[![codecov](https://codecov.io/gh/File-Sense/engine/graph/badge.svg?token=G7791UXKQQ)](https://codecov.io/gh/File-Sense/engine)
+
 Semantic File Search Desktop Application - AI Engine 🔎
 
 ## Developers 👩🏼‍💻👨🏼‍💻🧑🏼‍💻
