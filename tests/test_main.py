@@ -16,7 +16,7 @@ def test_ping():
 def test_favicon():
     response = client.get("/favicon.ico")
     assert response.status_code == 200
-    assert response.headers["content-type"] == "image/x-icon"
+    assert response.headers["content-type"] == "image/vnd.microsoft.icon"
 
 
 def test_swagger_ui_html():
