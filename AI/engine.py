@@ -1,10 +1,12 @@
+import nltk  # type: ignore
+from dill import load as dillload  # type: ignore
 from os import path
 from PIL import Image  # type: ignore
 from settings import Settings  # type: ignore
 import torch.nn.functional as F
 import torchvision.transforms as T  # type: ignore
 from torch.cuda import is_available
-from torch import no_grad, sum, clamp
+from torch import no_grad, sum, clamp, load
 from transformers import (  # type: ignore
     BlipProcessor,
     BlipForConditionalGeneration,
@@ -18,6 +20,7 @@ from error import (  # type: ignore
     ImageEmbeddingGenerationError,
     TextEmbeddingGenerationError,
 )
+from .model import Encoder, Decoder  # type: ignore
 
 
 class AIEngine(object):
@@ -28,8 +31,39 @@ class AIEngine(object):
 
     def __init__(self) -> None:
         try:
+            nltk.download("punkt")
             self.settings = Settings()
+            with open(
+                path.join(
+                    self.settings.ROOT_DIR, "AI", "model-exp-caption", "vocab.pkl"
+                ),
+                "rb",
+            ) as f:
+                self.vocab = dillload(f)
+            embed_size = 256
+            hidden_size = 512
+            vocab_size = len(self.vocab)
             self.device = "cuda" if is_available() else "cpu"
+            self.encoder = Encoder(embed_size)
+            self.decoder = Decoder(embed_size, hidden_size, vocab_size)
+            self.encoder.eval()
+            self.decoder.eval()
+            self.encoder.load_state_dict(
+                load(
+                    path.join(
+                        self.settings.ROOT_DIR, "AI", "model-exp-caption", "encoder.pkl"
+                    )
+                )
+            )
+            self.decoder.load_state_dict(
+                load(
+                    path.join(
+                        self.settings.ROOT_DIR, "AI", "model-exp-caption", "decoder.pkl"
+                    )
+                )
+            )
+            self.encoder.to(self.device)
+            self.decoder.to(self.device)
             self.caption_model = BlipForConditionalGeneration.from_pretrained(
                 path.join(self.settings.ROOT_DIR, "AI", "model-caption"),
                 local_files_only=True,
@@ -68,6 +102,17 @@ class AIEngine(object):
             caption = self.caption_processor.decode(
                 outputs[0], skip_special_tokens=True, max_length=100
             )
+            return caption
+        except Exception as e:
+            raise CaptionGenerationError(message=str(e))
+
+    def generate_experimental_caption(self, image_path: str) -> str:
+        try:
+            raw_image = Image.open(image_path)
+            transformed_image = self.__get_transformed_image(raw_image)
+            extracted_features = self.encoder(transformed_image).unsqueeze(1)
+            text_output = self.decoder.sample(extracted_features)
+            caption = self.__clean_sentence(text_output)
             return caption
         except Exception as e:
             raise CaptionGenerationError(message=str(e))
@@ -125,6 +170,33 @@ class AIEngine(object):
         return sum(token_embeddings * input_mask_expanded, 1) / clamp(
             input_mask_expanded.sum(1), min=1e-9
         )
+
+    def __clean_sentence(self, text) -> str:
+        cleaned_list = []
+        for index in text:
+            if index == 1:
+                continue
+            cleaned_list.append(self.vocab.idx2word[index])
+        cleaned_list = cleaned_list[1:-1]
+        sentence = " ".join(cleaned_list)
+        sentence = sentence.capitalize()
+        return sentence
+
+    def __get_transformed_image(self, image):
+        transform_image = T.Compose(
+            [
+                T.Resize(256),
+                T.RandomCrop(224),
+                T.RandomHorizontalFlip(),
+                T.ToTensor(),
+                T.Normalize(
+                    (0.485, 0.456, 0.406),
+                    (0.229, 0.224, 0.225),
+                ),
+            ]
+        )
+        transformed_image = transform_image(image).unsqueeze(0).to(self.device)
+        return transformed_image
 
     def release_models(self) -> None:
         self.caption_model = None

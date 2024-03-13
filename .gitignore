@@ -6,10 +6,12 @@ VECTORSTORE/vdb/*
 !VECTORSTORE/vdb/.gitkeep
 
 AI/model-caption/*
+AI/model-exp-caption/*
 AI/model-image/*
 AI/model-text/*
 
 !AI/model-caption/.gitkeep
+!AI/model-exp-caption/.gitkeep
 !AI/model-image/.gitkeep
 !AI/model-text/.gitkeep
 

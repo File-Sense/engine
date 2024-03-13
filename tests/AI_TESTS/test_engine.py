@@ -20,6 +20,12 @@ def test_generate_caption(ai_engine, settings):
     assert isinstance(caption, str)
 
 
+def test_generate_experimental_caption(ai_engine, settings):
+    img_path = path.join(settings.ROOT_DIR, "static", "demo.jpg")
+    caption = ai_engine.generate_experimental_caption(img_path)
+    assert isinstance(caption, str)
+
+
 def test_generate_text_embedding(ai_engine):
     text = ["This is a sample text"]
     embedding = ai_engine.generate_text_embedding(text)

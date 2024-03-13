@@ -14,3 +14,6 @@ Pillow==9.3.0
 chromadb==0.4.21
 checksumdir==1.2.0
 SQLAlchemy==2.0.23
+nltk==3.8.1
+pycocotools==2.0.7
+dill==0.3.8

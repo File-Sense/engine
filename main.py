@@ -67,8 +67,8 @@ def custom_openapi():
         return app.openapi_schema
     openapi_schema = get_openapi(
         title="File Sense AI API",
-        description="This API Handles all the utilities required for file sense app",
-        version="0.0.1",
+        description="This API Handles all the AI utilities required for file sense app",
+        version="0.1.1",
         contact={"name": "Pasindu Akalpa", "email": "pasinduakalpa1998@gmail.com"},
         routes=app.routes,
     )

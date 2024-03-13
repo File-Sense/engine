@@ -62,6 +62,21 @@ async def get_image_caption(r: Request, request: GetImageCaptionRequest):
         )
 
 
+@router.post("/get_experimental_image_caption", response_model=GetImageCaptionResponse)
+async def get_experimental_image_caption(r: Request, request: GetImageCaptionRequest):
+    try:
+        img_cap_list = [
+            r.app.state.ai_engine.generate_experimental_caption(image_path=img_path)
+            for img_path in request.image_path
+        ]
+        return GetImageCaptionResponse(caption=img_cap_list, error=None)
+    except Exception as e:
+        raise HTTPException(
+            status_code=HTTPStatus.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=GetImageCaptionResponse(caption=None, error=str(e)).model_dump(),
+        )
+
+
 @router.post(
     "/get_caption_with_embeddings",
     response_model=GetCaptionWithEmbeddingsResponse,
