@@ -52,14 +52,16 @@ class AIEngine(object):
                 load(
                     path.join(
                         self.settings.ROOT_DIR, "AI", "model-exp-caption", "encoder.pkl"
-                    )
+                    ),
+                    map_location=self.device,
                 )
             )
             self.decoder.load_state_dict(
                 load(
                     path.join(
                         self.settings.ROOT_DIR, "AI", "model-exp-caption", "decoder.pkl"
-                    )
+                    ),
+                    map_location=self.device,
                 )
             )
             self.encoder.to(self.device)
