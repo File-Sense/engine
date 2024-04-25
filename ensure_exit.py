@@ -1,11 +1,14 @@
 import os
 import psutil  # type: ignore
 import threading
+from sys import platform
 
 # Define the process name based on the OS
 if os.name == "nt":  # Windows
     process_name = "File Sense.exe"
-else:  # Unix-like systems
+elif platform.startswith("linux"):  # Unix-like systems
+    process_name = "file-sense"
+else:
     process_name = "File Sense"
 
 
